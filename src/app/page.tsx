@@ -544,6 +544,7 @@ const Minesweeper = () => {
         
         <div className="instructions">
           <p>👆 Tap to reveal • Hold to flag</p>
+          <p>🖱️ Click to reveal • Right-click to flag</p>
           <p>🔢 Numbers show nearby mines</p>
           <p>🚩 Use flag mode for easier flagging</p>
         </div>
