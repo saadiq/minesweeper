@@ -22,7 +22,31 @@ const Minesweeper = () => {
   const [flagCount, setFlagCount] = useState(0);
   const [timer, setTimer] = useState(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   
+  // Initialize theme
+  useEffect(() => {
+    // Check if user has a saved preference
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+  }, []);
+
+  // Toggle theme
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
   // Initialize the board
   const initializeBoard = () => {
     // Reset game state
@@ -385,110 +409,88 @@ const Minesweeper = () => {
   };
   
   return (
-    <div className="minesweeper">
-      <h1 className="game-title">Minesweeper</h1>
-      
-      <div className="controls">
-        <button 
-          className="control-btn easy"
-          onClick={() => changeDifficulty('easy')}
+    <>
+      <div className="minesweeper">
+        <h1 className="game-title">Minesweeper</h1>
+        
+        <div className="controls">
+          <button 
+            className="control-btn easy"
+            onClick={() => changeDifficulty('easy')}
+          >
+            Easy
+          </button>
+          <button 
+            className="control-btn medium"
+            onClick={() => changeDifficulty('medium')}
+          >
+            Medium
+          </button>
+          <button 
+            className="control-btn hard"
+            onClick={() => changeDifficulty('hard')}
+          >
+            Hard
+          </button>
+          <button 
+            className="control-btn new-game"
+            onClick={initializeBoard}
+          >
+            New Game
+          </button>
+        </div>
+        
+        <div className="game-info">
+          <div className="mines">
+            <span>💣</span> {mineCount - flagCount}/{mineCount}
+          </div>
+          <div className="timer">
+            <span>⏱️</span> {formatTime(timer)}
+          </div>
+        </div>
+        
+        {gameState === 'won' && (
+          <div className="status won">
+            You won! 🎉 🏆 🎉
+          </div>
+        )}
+        {gameState === 'lost' && (
+          <div className="status lost">
+            Game over! 💥 😵 💥
+          </div>
+        )}
+        
+        <div 
+          className="board"
+          style={{
+            gridTemplateRows: `repeat(${boardSize.rows}, 30px)`,
+            gridTemplateColumns: `repeat(${boardSize.cols}, 30px)`
+          }}
         >
-          Easy
-        </button>
-        <button 
-          className="control-btn medium"
-          onClick={() => changeDifficulty('medium')}
-        >
-          Medium
-        </button>
-        <button 
-          className="control-btn hard"
-          onClick={() => changeDifficulty('hard')}
-        >
-          Hard
-        </button>
-        <button 
-          className="control-btn new-game"
-          onClick={initializeBoard}
-        >
-          New Game
-        </button>
+          {board.map((row, rowIndex) => (
+            row.map((cell, colIndex) => renderCell(cell, rowIndex, colIndex))
+          ))}
+        </div>
+        
+        <div className="instructions">
+          <p>👆 Click to reveal a cell. 👉 Right-click to place/remove a flag.</p>
+          <p>🔢 Numbers show how many mines are in the adjacent cells.</p>
+        </div>
       </div>
-      
-      <div className="game-info">
-        <div className="mines">
-          <span>💣</span> {mineCount - flagCount}/{mineCount}
-        </div>
-        <div className="timer">
-          <span>⏱️</span> {formatTime(timer)}
-        </div>
-      </div>
-      
-      {gameState === 'won' && (
-        <div className="status won">
-          You won! 🎉 🏆 🎉
-        </div>
-      )}
-      {gameState === 'lost' && (
-        <div className="status lost">
-          Game over! 💥 😵 💥
-        </div>
-      )}
-      
-      <div 
-        className="board"
-        style={{
-          gridTemplateRows: `repeat(${boardSize.rows}, 30px)`,
-          gridTemplateColumns: `repeat(${boardSize.cols}, 30px)`
-        }}
+
+      <button 
+        className="theme-toggle"
+        onClick={toggleTheme}
+        title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       >
-        {board.map((row, rowIndex) => (
-          row.map((cell, colIndex) => renderCell(cell, rowIndex, colIndex))
-        ))}
-      </div>
-      
-      <div className="instructions">
-        <p>👆 Click to reveal a cell. 👉 Right-click to place/remove a flag.</p>
-        <p>🔢 Numbers show how many mines are in the adjacent cells.</p>
-      </div>
-      
-      <style jsx>{`
-        .cell {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: #8A2BE2; /* Vibrant purple */
-          cursor: pointer;
-          user-select: none;
-          font-weight: bold;
-          border-radius: 4px;
-          box-shadow: inset 2px 2px 3px rgba(255,255,255,0.3), inset -2px -2px 3px rgba(0,0,0,0.2);
-        }
-        .cell:hover {
-          background-color: #9932CC; /* Lighter purple on hover */
-          transform: scale(1.05);
-          transition: all 0.1s;
-        }
-        .cell.revealed {
-          background-color: #F8F8FF; /* Ghost white */
-          box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
-        }
-        .cell.mine {
-          background-color: #FF1493; /* Deep pink */
-        }
-        .cell.flagged {
-          background-color: #32CD32; /* Lime green */
-        }
-        .neighbors-1 { color: #1E90FF; } /* Dodger blue */
-        .neighbors-2 { color: #00FF7F; } /* Spring green */
-        .neighbors-3 { color: #FF4500; } /* Orange red */
-        .neighbors-4 { color: #9400D3; } /* Dark violet */
-        .neighbors-5 { color: #FF8C00; } /* Dark orange */
-        .neighbors-6 { color: #00CED1; } /* Dark turquoise */
-        .neighbors-7 { color: #FF1493; } /* Deep pink */
-        .neighbors-8 { color: #FFD700; } /* Gold */
-      `}</style>
-    </div>
+        <span className="theme-toggle-icon">
+          {theme === 'light' ? '🌙' : '☀️'}
+        </span>
+        <span className="theme-toggle-text">
+          {theme === 'light' ? 'Dark' : 'Light'} mode
+        </span>
+      </button>
+    </>
   );
 };
 
