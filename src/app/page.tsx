@@ -261,74 +261,55 @@ const Minesweeper = () => {
   };
   
   // Reveal adjacent cells when right-clicking a revealed number
-  const chordReveal = (row: number, col: number) => {
+  const chordReveal = useCallback((row: number, col: number) => {
     if (gameState !== 'playing') return;
 
-    const cell = board[row][col];
-    if (!cell.isRevealed || cell.neighborMines === 0) return;
+    const newBoard = [...board];
+    const cell = newBoard[row][col];
 
-    // Count adjacent flags
-    let adjacentFlags = 0;
-    const adjacentCells: { row: number; col: number }[] = [];
+    if (!cell.isRevealed) return;
 
+    // Process chord reveal: reveal all adjacent non-flagged cells regardless of flag count
+    const neighborsToProcess = [];
+    let shouldLoseGame = false;
     for (let i = -1; i <= 1; i++) {
       for (let j = -1; j <= 1; j++) {
-        if (i === 0 && j === 0) continue;
-        
         const newRow = row + i;
         const newCol = col + j;
-        
-        if (newRow >= 0 && newRow < boardSize.rows && 
-            newCol >= 0 && newCol < boardSize.cols) {
-          if (board[newRow][newCol].isFlagged) {
-            adjacentFlags++;
+        if (newRow >= 0 && newRow < boardSize.rows && newCol >= 0 && newCol < boardSize.cols) {
+          const neighbor = newBoard[newRow][newCol];
+          if (!neighbor.isFlagged && !neighbor.isRevealed) {
+            neighborsToProcess.push({ row: newRow, col: newCol });
+            if (neighbor.isMine) {
+              shouldLoseGame = true;
+            }
           }
-          adjacentCells.push({ row: newRow, col: newCol });
         }
       }
     }
 
-    // Only reveal if the number of adjacent flags matches the number
-    if (adjacentFlags === cell.neighborMines) {
-      const newBoard = [...board];
-      let hitMine = false;
-
-      // Reveal all non-flagged adjacent cells
-      adjacentCells.forEach(({row: r, col: c}) => {
-        const adjacentCell = newBoard[r][c];
-        if (!adjacentCell.isFlagged && !adjacentCell.isRevealed) {
-          if (adjacentCell.isMine) {
-            hitMine = true;
-            // Reveal all mines if we hit one
-            for (let row = 0; row < boardSize.rows; row++) {
-              for (let col = 0; col < boardSize.cols; col++) {
-                if (newBoard[row][col].isMine) {
-                  newBoard[row][col].isRevealed = true;
-                }
-              }
-            }
-          } else {
-            // Recursively reveal empty cells
-            if (adjacentCell.neighborMines === 0) {
-              revealCell(r, c);
-            } else {
-              adjacentCell.isRevealed = true;
-            }
+    if (shouldLoseGame) {
+      // Reveal all mines and end game
+      for (let r = 0; r < boardSize.rows; r++) {
+        for (let c = 0; c < boardSize.cols; c++) {
+          if (newBoard[r][c].isMine) {
+            newBoard[r][c].isRevealed = true;
           }
         }
-      });
-
-      if (hitMine) {
-        if (intervalId) {
-          clearInterval(intervalId);
-          setIntervalId(null);
-        }
-        setGameState('lost');
       }
-      
-      setBoard([...newBoard]);
+      if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
+      setGameState('lost');
+      setBoard(newBoard);
+      return;
     }
-  };
+
+    for (const neighbor of neighborsToProcess) {
+      revealCell(neighbor.row, neighbor.col);
+    }
+  }, [board, gameState, boardSize.rows, boardSize.cols, revealCell]);
   
   // Handle difficulty change
   const changeDifficulty = (level: 'easy' | 'medium' | 'hard') => {
