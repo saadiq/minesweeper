@@ -357,7 +357,7 @@ body {
 .github-link {
   position: fixed;
   bottom: 1rem;
-  right: 4rem;
+  right: 1rem;
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
@@ -390,7 +390,8 @@ body {
 @media (max-width: 640px) {
   .theme-toggle {
     bottom: 1rem;
-    right: 1rem;
+    left: 1rem;
+    right: auto;
     width: 2.25rem;
     height: 2.25rem;
     padding: 0.35rem;
@@ -399,7 +400,8 @@ body {
   
   .github-link {
     bottom: 1rem;
-    right: 3.75rem;
+    right: 1rem;
+    left: auto;
     width: 2.25rem;
     height: 2.25rem;
   }
@@ -413,20 +415,6 @@ body {
 * {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-}
-
-/* Adjust theme toggle for mobile */
-@media (max-width: 640px) {
-  .theme-toggle {
-    bottom: 1rem;
-    left: 1rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
-  }
-
-  .theme-toggle-icon {
-    font-size: 1rem;
-  }
 }
 
 /* Prevent pull-to-refresh on mobile */
