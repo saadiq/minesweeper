@@ -52,14 +52,12 @@ body {
 }
 
 .minesweeper.flag-flash {
-  animation: pageFlash 300ms ease-in-out;
+  animation: pageFlash 200ms ease-in-out;
 }
 
 @keyframes pageFlash {
   0% { background-color: var(--background); }
-  25% { background-color: #ffffff; }
-  50% { background-color: var(--background); }
-  75% { background-color: #ffffff; }
+  50% { background-color: #ffffff; }
   100% { background-color: var(--background); }
 }
 
