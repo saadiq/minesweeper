@@ -34,7 +34,6 @@ const Minesweeper = () => {
   });
   const longPressHandledRef = useRef(false);
   const lastTouchTimeRef = useRef(0);
-  const [isFlagMode, setIsFlagMode] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   
   // Initialize theme
@@ -383,20 +382,23 @@ const Minesweeper = () => {
     const timer = setTimeout(() => {
       // Long press detected
       const cell = board[row][col];
-      if (!cell.isRevealed) {
+      if (cell.isRevealed && cell.neighborMines > 0) {
+        // If revealed and has neighbors, do chord reveal
+        chordReveal(row, col);
+      } else if (!cell.isRevealed) {
+        // If not revealed, toggle flag
         toggleFlag(row, col);
         setIsFlashing(true);
         setTimeout(() => setIsFlashing(false), 200);
-        longPressHandledRef.current = true; // Mark long press handled
       }
+      longPressHandledRef.current = true;
     }, 500);
 
-    // Store timerId and the actual start time
     setTouchTimer({
       timerId: timer,
       touchStartTime: startTime
     });
-  }, [board, toggleFlag, setIsFlashing]);
+  }, [board, toggleFlag, chordReveal, setIsFlashing]);
 
   // Handle touch end
   const handleTouchEnd = useCallback((row: number, col: number) => {
@@ -410,38 +412,14 @@ const Minesweeper = () => {
       if (touchTimer.touchStartTime > 0 && Date.now() - touchTimer.touchStartTime < 500) {
         const cell = board[row][col];
         if (!cell.isFlagged) {
-          if (isFlagMode) {
-            toggleFlag(row, col);
-          } else {
-            revealCell(row, col);
-          }
+          revealCell(row, col);
         }
       }
     }
 
-    // Reset timer state and record last touch time
     setTouchTimer({ timerId: null, touchStartTime: 0 });
     lastTouchTimeRef.current = Date.now();
-
-  }, [board, touchTimer, isFlagMode, toggleFlag, revealCell]);
-
-  // Handle touch move (cancel if moved)
-  const handleTouchMove = useCallback(() => {
-    if (touchTimer.timerId) {
-      clearTimeout(touchTimer.timerId);
-      setTouchTimer({ timerId: null, touchStartTime: 0 });
-      longPressHandledRef.current = false; // Reset ref
-    }
-  }, [touchTimer]);
-
-  // Memoize toggleFlag and revealCell to prevent unnecessary re-renders
-  const memoizedToggleFlag = useCallback((row: number, col: number) => {
-    toggleFlag(row, col);
-  }, [toggleFlag]);
-
-  const memoizedRevealCell = useCallback((row: number, col: number) => {
-    revealCell(row, col);
-  }, [revealCell]);
+  }, [board, touchTimer, revealCell]);
 
   // Cell rendering with touch support
   const renderCell = (cell: Cell, row: number, col: number) => {
@@ -472,7 +450,7 @@ const Minesweeper = () => {
           if (Date.now() - lastTouchTimeRef.current < 500) {
             return;
           }
-          isFlagMode ? toggleFlag(row, col) : revealCell(row, col);
+          revealCell(row, col);
         }}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -484,7 +462,6 @@ const Minesweeper = () => {
         }}
         onTouchStart={() => handleTouchStart(row, col)}
         onTouchEnd={() => handleTouchEnd(row, col)}
-        onTouchMove={handleTouchMove}
       >
         {cellContent}
       </div>
@@ -539,14 +516,6 @@ const Minesweeper = () => {
           </div>
         </div>
         
-        <button 
-          className={`flag-mode-toggle ${isFlagMode ? 'active' : ''}`}
-          onClick={() => setIsFlagMode(!isFlagMode)}
-          title={`${isFlagMode ? 'Reveal' : 'Flag'} mode`}
-        >
-          {isFlagMode ? '👆 Reveal Mode' : '🚩 Flag Mode'}
-        </button>
-        
         {gameState === 'won' && (
           <div className="status won">
             You won! 🎉 🏆 🎉
@@ -571,10 +540,10 @@ const Minesweeper = () => {
         </div>
         
         <div className="instructions">
-          <p>👆 Tap to reveal • Hold to flag</p>
-          <p>🖱️ Click to reveal • Right-click to flag</p>
-          <p>🔢 Numbers show nearby mines</p>
-          <p>🚩 Use flag mode for easier flagging</p>
+          <p>👆 Tap to reveal</p>
+          <p>🚩 Hold to flag/unflag</p>
+          <p>🔢 Hold on numbers to reveal neighbors</p>
+          <p>🖱️ Right-click to flag on desktop</p>
         </div>
       </div>
 
@@ -584,10 +553,23 @@ const Minesweeper = () => {
         title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       >
         <span className="theme-toggle-icon">
-          {theme === 'light' ? '🌙' : '☀️'}
-        </span>
-        <span className="theme-toggle-text">
-          {theme === 'light' ? 'Dark' : 'Light'} mode
+          {theme === 'light' ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          )}
         </span>
       </button>
     </>
