@@ -6,7 +6,7 @@ A sleek, modern implementation of the classic Minesweeper game built with Next.j
 
 ## 🎮 Play Now
 
-[Add your deployed game URL here]
+https://minesweeper-eta-seven.vercel.app/
 
 ## ✨ Features
 
