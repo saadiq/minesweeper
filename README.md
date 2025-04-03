@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Here's a detailed specification for your Minesweeper game:
 
-## Getting Started
+# Minesweeper Game Specification
 
-First, run the development server:
+## Overview
+A modern, web-based implementation of the classic Minesweeper game with vibrant visuals and standard gameplay mechanics.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Visual Design
+- **Color Scheme**: Vibrant colors with purple cells, gradient backgrounds, and colorful numbered indicators
+- **Interface**: Clean, centered layout with responsive design
+- **Typography**: Bold, easy-to-read text with a gradient title effect
+- **Animations**: Subtle hover and click animations for better user feedback
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Game Components
+1. **Header**
+   - Game title with gradient effect
+   - Difficulty selection buttons (Easy, Medium, Hard)
+   - New Game button
+   - Status display (game state indicator)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Game Info Panel**
+   - Mine counter (remaining mines)
+   - Timer display (minutes:seconds format)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Game Board**
+   - Grid of cells based on difficulty setting
+   - Visual indicators for revealed, flagged, and mine cells
 
-## Learn More
+4. **Instructions**
+   - Brief guidance on how to play
 
-To learn more about Next.js, take a look at the following resources:
+## Game Mechanics
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Difficulty Levels
+- **Easy**: 10×10 grid with 15 mines
+- **Medium**: 16×16 grid with 40 mines
+- **Hard**: 16×30 grid with 99 mines
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Gameplay Rules
+1. **Initialization**
+   - Game board is created with randomly placed mines
+   - Timer starts only after the first player action (click or flag)
+   - Game state begins in "waiting" mode
 
-## Deploy on Vercel
+2. **Cell Interaction**
+   - Left-click: Reveal a cell
+   - Right-click: Toggle a flag on/off on unrevealed cells
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Cell States**
+   - Unrevealed: Default purple background
+   - Revealed: Shows either a number (1-8) or blank
+   - Flagged: Shows a flag icon (🚩)
+   - Mine: Shows a bomb icon (💣) when revealed
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Game Progression**
+   - Numbers indicate the count of adjacent mines
+   - Empty cells auto-reveal adjacent empty cells
+   - Flagging all mines correctly ends the game with a win
+
+5. **Win/Loss Conditions**
+   - Win: All mines are correctly flagged
+   - Loss: Player reveals a mine
+
+6. **Timer Behavior**
+   - Starts on first player action
+   - Increments in 1-second intervals
+   - Stops when game ends (win or loss)
+
+## Accessibility Features
+- Clear visual indicators for important game states
+- Color combinations with sufficient contrast
+- Emoji icons for flags and mines
+
+This specification provides a comprehensive overview of your Minesweeper game, documenting its visual design, gameplay mechanics, and technical implementation details.
