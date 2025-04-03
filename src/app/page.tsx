@@ -157,8 +157,8 @@ const Minesweeper = () => {
       return;
     }
 
-    // Start timer only on first non-mine click
-    if (gameState === 'waiting') {
+    // Start timer only on first non-mine click if there's no timer running already
+    if (gameState === 'waiting' && !intervalId) {
       const newIntervalId = setInterval(() => {
         setTimer(prevTimer => prevTimer + 1);
       }, 1000);
@@ -199,11 +199,13 @@ const Minesweeper = () => {
     if (gameState === 'waiting') {
       setGameState('playing');
       
-      // Start timer on first flag placement
-      const newIntervalId = setInterval(() => {
-        setTimer(prevTimer => prevTimer + 1);
-      }, 1000);
-      setIntervalId(newIntervalId);
+      // Start timer on first flag placement only if there's no timer running already
+      if (!intervalId) {
+        const newIntervalId = setInterval(() => {
+          setTimer(prevTimer => prevTimer + 1);
+        }, 1000);
+        setIntervalId(newIntervalId);
+      }
     }
     
     const newBoard = [...board];
@@ -343,7 +345,15 @@ const Minesweeper = () => {
     if (gameState === 'waiting') {
       initializeBoard();
     }
-  }, [boardSize, mineCount, gameState, initializeBoard]);
+    
+    // Ensure timer is stopped when game is won or lost
+    if (gameState === 'won' || gameState === 'lost') {
+      if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
+    }
+  }, [boardSize, mineCount, gameState, initializeBoard, intervalId]);
   
   // Cleanup timer on unmount
   useEffect(() => {
