@@ -533,8 +533,7 @@ const Minesweeper = () => {
         <div className="instructions">
           <p>👆 Tap to reveal</p>
           <p>🚩 Hold to flag/unflag</p>
-          <p>💡 <strong>Chord Reveal:</strong> When a revealed number matches adjacent flags, right-click (desktop) or long-press (mobile) on the number to reveal all non-flagged neighboring cells</p>
-          <p>🔢 This technique is essential for faster gameplay</p>
+          <p>💡 Right-click or long-press a number to reveal adjacent unflagged tiles</p>
           <p>🖱️ Right-click to flag on desktop</p>
         </div>
       </div>
