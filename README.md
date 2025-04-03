@@ -2,8 +2,7 @@
 
 A sleek, modern implementation of the classic Minesweeper game built with Next.js, TypeScript, and Tailwind CSS. Features a responsive design, touch support, and dark mode.
 
-![Minesweeper Game Screenshot]
-[Add a screenshot of your game here]
+![Minesweeper Game Screenshot](public/screen.png)
 
 ## 🎮 Play Now
 
@@ -143,10 +142,6 @@ SOFTWARE.
 
 - Inspired by the classic Minesweeper game
 - Icons from [Feather Icons](https://feathericons.com/)
-
-## 📸 Screenshots
-
-[Add more screenshots of your game here, showing different states and features]
 
 ---
 
