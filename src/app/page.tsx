@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface Cell {
   isMine: boolean;
@@ -14,6 +14,11 @@ interface BoardSize {
   cols: number;
 }
 
+interface TouchTimer {
+  timerId: NodeJS.Timeout | null;
+  touchStartTime: number;
+}
+
 const Minesweeper = () => {
   const [boardSize, setBoardSize] = useState<BoardSize>({ rows: 10, cols: 10 });
   const [mineCount, setMineCount] = useState(15);
@@ -23,6 +28,9 @@ const Minesweeper = () => {
   const [timer, setTimer] = useState(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [touchTimer, setTouchTimer] = useState<TouchTimer>({ timerId: null, touchStartTime: 0 });
+  const [isFlagMode, setIsFlagMode] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
   
   // Initialize theme
   useEffect(() => {
@@ -204,6 +212,9 @@ const Minesweeper = () => {
       } else if (flagCount < mineCount) {
         cell.isFlagged = true;
         setFlagCount(prevCount => prevCount + 1);
+        // Add flash effect
+        setIsFlashing(true);
+        setTimeout(() => setIsFlashing(false), 300);
       }
       
       // Check if the player has correctly flagged all mines
@@ -362,7 +373,55 @@ const Minesweeper = () => {
     };
   }, [intervalId]);
   
-  // Cell rendering
+  // Handle touch start
+  const handleTouchStart = useCallback((row: number, col: number) => {
+    const timer = setTimeout(() => {
+      // Long press detected - toggle flag
+      toggleFlag(row, col);
+    }, 500); // 500ms for long press
+
+    setTouchTimer({
+      timerId: timer,
+      touchStartTime: Date.now()
+    });
+  }, [toggleFlag]);
+
+  // Handle touch end
+  const handleTouchEnd = useCallback((row: number, col: number) => {
+    if (touchTimer.timerId) {
+      clearTimeout(touchTimer.timerId);
+      
+      // If the touch was short (less than 500ms), treat it as a reveal
+      if (Date.now() - touchTimer.touchStartTime < 500) {
+        if (isFlagMode) {
+          toggleFlag(row, col);
+        } else {
+          revealCell(row, col);
+        }
+      }
+    }
+    
+    setTouchTimer({ timerId: null, touchStartTime: 0 });
+  }, [touchTimer, isFlagMode, toggleFlag, revealCell]);
+
+  // Handle touch move (cancel if moved)
+  const handleTouchMove = useCallback(() => {
+    if (touchTimer.timerId) {
+      clearTimeout(touchTimer.timerId);
+      setTouchTimer({ timerId: null, touchStartTime: 0 });
+    }
+  }, [touchTimer]);
+
+  // Memoize toggleFlag and revealCell to prevent unnecessary re-renders
+  const memoizedToggleFlag = useCallback((row: number, col: number) => {
+    toggleFlag(row, col);
+  }, [toggleFlag]);
+
+  const memoizedRevealCell = useCallback((row: number, col: number) => {
+    revealCell(row, col);
+  }, [revealCell]);
+
+  // Cell rendering with touch support
   const renderCell = (cell: Cell, row: number, col: number) => {
     let cellContent = '';
     let className = 'cell';
@@ -386,15 +445,18 @@ const Minesweeper = () => {
       <div 
         key={`${row}-${col}`}
         className={className}
-        onClick={() => revealCell(row, col)}
+        onClick={() => isFlagMode ? memoizedToggleFlag(row, col) : memoizedRevealCell(row, col)}
         onContextMenu={(e) => {
           e.preventDefault();
           if (cell.isRevealed && cell.neighborMines > 0) {
             chordReveal(row, col);
           } else {
-            toggleFlag(row, col);
+            memoizedToggleFlag(row, col);
           }
         }}
+        onTouchStart={() => handleTouchStart(row, col)}
+        onTouchEnd={() => handleTouchEnd(row, col)}
+        onTouchMove={handleTouchMove}
       >
         {cellContent}
       </div>
@@ -410,7 +472,7 @@ const Minesweeper = () => {
   
   return (
     <>
-      <div className="minesweeper">
+      <div className={`minesweeper ${isFlashing ? 'flag-flash' : ''}`}>
         <h1 className="game-title">Minesweeper</h1>
         
         <div className="controls">
@@ -449,6 +511,14 @@ const Minesweeper = () => {
           </div>
         </div>
         
+        <button 
+          className={`flag-mode-toggle ${isFlagMode ? 'active' : ''}`}
+          onClick={() => setIsFlagMode(!isFlagMode)}
+          title={`${isFlagMode ? 'Reveal' : 'Flag'} mode`}
+        >
+          {isFlagMode ? '👆 Reveal Mode' : '🚩 Flag Mode'}
+        </button>
+        
         {gameState === 'won' && (
           <div className="status won">
             You won! 🎉 🏆 🎉
@@ -463,8 +533,8 @@ const Minesweeper = () => {
         <div 
           className="board"
           style={{
-            gridTemplateRows: `repeat(${boardSize.rows}, 30px)`,
-            gridTemplateColumns: `repeat(${boardSize.cols}, 30px)`
+            gridTemplateRows: `repeat(${boardSize.rows}, minmax(30px, 40px))`,
+            gridTemplateColumns: `repeat(${boardSize.cols}, minmax(30px, 40px))`
           }}
         >
           {board.map((row, rowIndex) => (
@@ -473,8 +543,9 @@ const Minesweeper = () => {
         </div>
         
         <div className="instructions">
-          <p>👆 Click to reveal a cell. 👉 Right-click to place/remove a flag.</p>
-          <p>🔢 Numbers show how many mines are in the adjacent cells.</p>
+          <p>👆 Tap to reveal • Hold to flag</p>
+          <p>🔢 Numbers show nearby mines</p>
+          <p>🚩 Use flag mode for easier flagging</p>
         </div>
       </div>
 
