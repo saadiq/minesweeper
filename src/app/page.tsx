@@ -310,56 +310,54 @@ const Minesweeper = () => {
   
   return (
     <div className="minesweeper">
-      <div className="header flex flex-col items-center mb-4">
-        <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">Minesweeper</h1>
-        
-        <div className="controls flex gap-4 mb-2">
-          <button 
-            className="px-3 py-1 bg-pink-500 text-white rounded-lg font-bold shadow-md hover:bg-pink-600 transition-colors"
-            onClick={() => changeDifficulty('easy')}
-          >
-            Easy
-          </button>
-          <button 
-            className="px-3 py-1 bg-purple-500 text-white rounded-lg font-bold shadow-md hover:bg-purple-600 transition-colors"
-            onClick={() => changeDifficulty('medium')}
-          >
-            Medium
-          </button>
-          <button 
-            className="px-3 py-1 bg-indigo-500 text-white rounded-lg font-bold shadow-md hover:bg-indigo-600 transition-colors"
-            onClick={() => changeDifficulty('hard')}
-          >
-            Hard
-          </button>
-          <button 
-            className="px-3 py-1 bg-emerald-500 text-white rounded-lg font-bold shadow-md hover:bg-emerald-600 transition-colors"
-            onClick={initializeBoard}
-          >
-            New Game
-          </button>
-        </div>
-        
-        <div className="info flex justify-between w-full max-w-sm p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-bold shadow-lg mb-2">
-          <div className="mines flex items-center">
-            <span className="mr-1">💣</span> {mineCount - flagCount}/{mineCount}
-          </div>
-          <div className="timer flex items-center">
-            <span className="mr-1">⏱️</span> {formatTime(timer)}
-          </div>
-        </div>
-        
-        {gameState === 'won' && (
-          <div className="status bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold mt-2 p-2 rounded-lg shadow-lg animate-pulse">
-            You won! 🎉 🏆 🎉
-          </div>
-        )}
-        {gameState === 'lost' && (
-          <div className="status bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold mt-2 p-2 rounded-lg shadow-lg">
-            Game over! 💥 😵 💥
-          </div>
-        )}
+      <h1 className="game-title">Minesweeper</h1>
+      
+      <div className="controls">
+        <button 
+          className="control-btn easy"
+          onClick={() => changeDifficulty('easy')}
+        >
+          Easy
+        </button>
+        <button 
+          className="control-btn medium"
+          onClick={() => changeDifficulty('medium')}
+        >
+          Medium
+        </button>
+        <button 
+          className="control-btn hard"
+          onClick={() => changeDifficulty('hard')}
+        >
+          Hard
+        </button>
+        <button 
+          className="control-btn new-game"
+          onClick={initializeBoard}
+        >
+          New Game
+        </button>
       </div>
+      
+      <div className="game-info">
+        <div className="mines">
+          <span>💣</span> {mineCount - flagCount}/{mineCount}
+        </div>
+        <div className="timer">
+          <span>⏱️</span> {formatTime(timer)}
+        </div>
+      </div>
+      
+      {gameState === 'won' && (
+        <div className="status won">
+          You won! 🎉 🏆 🎉
+        </div>
+      )}
+      {gameState === 'lost' && (
+        <div className="status lost">
+          Game over! 💥 😵 💥
+        </div>
+      )}
       
       <div 
         className="board"
@@ -373,9 +371,9 @@ const Minesweeper = () => {
         ))}
       </div>
       
-      <div className="instructions mt-4 p-3 bg-gradient-to-r from-violet-200 to-pink-200 rounded-lg shadow-md">
-        <p className="text-indigo-800 font-medium">👆 Click to reveal a cell. 👉 Right-click to place/remove a flag.</p>
-        <p className="text-indigo-800 font-medium">🔢 Numbers show how many mines are in the adjacent cells.</p>
+      <div className="instructions">
+        <p>👆 Click to reveal a cell. 👉 Right-click to place/remove a flag.</p>
+        <p>🔢 Numbers show how many mines are in the adjacent cells.</p>
       </div>
       
       <style jsx>{`
