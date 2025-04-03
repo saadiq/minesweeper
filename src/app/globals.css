@@ -361,8 +361,8 @@ body {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background-color: var(--theme-toggle-bg);
-  color: var(--theme-toggle-text);
+  background-color: var(--background);
+  color: var(--foreground);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -374,7 +374,7 @@ body {
 
 .github-link:hover {
   transform: translateY(-3px);
-  background-color: var(--theme-toggle-hover);
+  background-color: var(--background);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
