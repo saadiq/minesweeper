@@ -94,12 +94,6 @@ const Minesweeper = () => {
     // If game is waiting, start it
     if (gameState === 'waiting') {
       setGameState('playing');
-      
-      // Start timer only on first click
-      const newIntervalId = setInterval(() => {
-        setTimer(prevTimer => prevTimer + 1);
-      }, 1000);
-      setIntervalId(newIntervalId);
     } else if (gameState !== 'playing') {
       return; // Don't do anything if game is won or lost
     }
@@ -125,6 +119,14 @@ const Minesweeper = () => {
       setGameState('lost');
       setBoard(newBoard);
       return;
+    }
+
+    // Start timer only on first non-mine click
+    if (gameState === 'waiting') {
+      const newIntervalId = setInterval(() => {
+        setTimer(prevTimer => prevTimer + 1);
+      }, 1000);
+      setIntervalId(newIntervalId);
     }
     
     // If already revealed, do nothing
@@ -222,6 +224,76 @@ const Minesweeper = () => {
     }
   };
   
+  // Reveal adjacent cells when right-clicking a revealed number
+  const chordReveal = (row: number, col: number) => {
+    if (gameState !== 'playing') return;
+
+    const cell = board[row][col];
+    if (!cell.isRevealed || cell.neighborMines === 0) return;
+
+    // Count adjacent flags
+    let adjacentFlags = 0;
+    const adjacentCells: { row: number; col: number }[] = [];
+
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0) continue;
+        
+        const newRow = row + i;
+        const newCol = col + j;
+        
+        if (newRow >= 0 && newRow < boardSize.rows && 
+            newCol >= 0 && newCol < boardSize.cols) {
+          if (board[newRow][newCol].isFlagged) {
+            adjacentFlags++;
+          }
+          adjacentCells.push({ row: newRow, col: newCol });
+        }
+      }
+    }
+
+    // Only reveal if the number of adjacent flags matches the number
+    if (adjacentFlags === cell.neighborMines) {
+      const newBoard = [...board];
+      let hitMine = false;
+
+      // Reveal all non-flagged adjacent cells
+      adjacentCells.forEach(({row: r, col: c}) => {
+        const adjacentCell = newBoard[r][c];
+        if (!adjacentCell.isFlagged && !adjacentCell.isRevealed) {
+          if (adjacentCell.isMine) {
+            hitMine = true;
+            // Reveal all mines if we hit one
+            for (let row = 0; row < boardSize.rows; row++) {
+              for (let col = 0; col < boardSize.cols; col++) {
+                if (newBoard[row][col].isMine) {
+                  newBoard[row][col].isRevealed = true;
+                }
+              }
+            }
+          } else {
+            // Recursively reveal empty cells
+            if (adjacentCell.neighborMines === 0) {
+              revealCell(r, c);
+            } else {
+              adjacentCell.isRevealed = true;
+            }
+          }
+        }
+      });
+
+      if (hitMine) {
+        if (intervalId) {
+          clearInterval(intervalId);
+          setIntervalId(null);
+        }
+        setGameState('lost');
+      }
+      
+      setBoard([...newBoard]);
+    }
+  };
+  
   // Handle difficulty change
   const changeDifficulty = (level: 'easy' | 'medium' | 'hard') => {
     if (intervalId) {
@@ -293,7 +365,11 @@ const Minesweeper = () => {
         onClick={() => revealCell(row, col)}
         onContextMenu={(e) => {
           e.preventDefault();
-          toggleFlag(row, col);
+          if (cell.isRevealed && cell.neighborMines > 0) {
+            chordReveal(row, col);
+          } else {
+            toggleFlag(row, col);
+          }
         }}
       >
         {cellContent}
