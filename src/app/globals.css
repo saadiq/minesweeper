@@ -24,3 +24,44 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .minesweeper {
+    @apply flex flex-col items-center justify-center min-h-screen bg-black p-4;
+  }
+
+  .board {
+    @apply bg-white p-4 rounded-lg shadow-lg grid gap-[1px];
+  }
+
+  .cell {
+    @apply w-[30px] h-[30px] flex items-center justify-center font-bold cursor-pointer select-none rounded transition-all duration-100 ease-in-out;
+    @apply bg-purple-600 hover:bg-purple-500 hover:scale-105;
+    box-shadow: inset 2px 2px 3px rgba(255,255,255,0.3), inset -2px -2px 3px rgba(0,0,0,0.2);
+  }
+
+  .cell.revealed {
+    @apply bg-white shadow-inner;
+  }
+
+  .cell.mine {
+    @apply bg-pink-500;
+  }
+
+  .cell.flagged {
+    @apply bg-green-500;
+  }
+
+  .neighbors-1 { @apply text-blue-500; }
+  .neighbors-2 { @apply text-green-500; }
+  .neighbors-3 { @apply text-orange-500; }
+  .neighbors-4 { @apply text-purple-800; }
+  .neighbors-5 { @apply text-orange-600; }
+  .neighbors-6 { @apply text-teal-500; }
+  .neighbors-7 { @apply text-pink-600; }
+  .neighbors-8 { @apply text-yellow-500; }
+}
