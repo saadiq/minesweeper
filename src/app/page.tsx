@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 interface Cell {
   isMine: boolean;
@@ -28,7 +28,12 @@ const Minesweeper = () => {
   const [timer, setTimer] = useState(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [touchTimer, setTouchTimer] = useState<TouchTimer>({ timerId: null, touchStartTime: 0 });
+  const [touchTimer, setTouchTimer] = useState<TouchTimer>({ 
+    timerId: null, 
+    touchStartTime: 0
+  });
+  const longPressHandledRef = useRef(false);
+  const lastTouchTimeRef = useRef(0);
   const [isFlagMode, setIsFlagMode] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   
@@ -212,9 +217,6 @@ const Minesweeper = () => {
       } else if (flagCount < mineCount) {
         cell.isFlagged = true;
         setFlagCount(prevCount => prevCount + 1);
-        // Add flash effect
-        setIsFlashing(true);
-        setTimeout(() => setIsFlashing(false), 300);
       }
       
       // Check if the player has correctly flagged all mines
@@ -375,40 +377,60 @@ const Minesweeper = () => {
   
   // Handle touch start
   const handleTouchStart = useCallback((row: number, col: number) => {
-    const timer = setTimeout(() => {
-      // Long press detected - toggle flag
-      toggleFlag(row, col);
-    }, 500); // 500ms for long press
+    longPressHandledRef.current = false; // Reset ref
+    const startTime = Date.now(); // Store start time locally
 
+    const timer = setTimeout(() => {
+      // Long press detected
+      const cell = board[row][col];
+      if (!cell.isRevealed) {
+        toggleFlag(row, col);
+        setIsFlashing(true);
+        setTimeout(() => setIsFlashing(false), 200);
+        longPressHandledRef.current = true; // Mark long press handled
+      }
+    }, 500);
+
+    // Store timerId and the actual start time
     setTouchTimer({
       timerId: timer,
-      touchStartTime: Date.now()
+      touchStartTime: startTime
     });
-  }, [toggleFlag]);
+  }, [board, toggleFlag, setIsFlashing]);
 
   // Handle touch end
   const handleTouchEnd = useCallback((row: number, col: number) => {
     if (touchTimer.timerId) {
       clearTimeout(touchTimer.timerId);
-      
-      // If the touch was short (less than 500ms), treat it as a reveal
-      if (Date.now() - touchTimer.touchStartTime < 500) {
-        if (isFlagMode) {
-          toggleFlag(row, col);
-        } else {
-          revealCell(row, col);
+    }
+
+    if (longPressHandledRef.current) {
+      longPressHandledRef.current = false;
+    } else {
+      if (touchTimer.touchStartTime > 0 && Date.now() - touchTimer.touchStartTime < 500) {
+        const cell = board[row][col];
+        if (!cell.isFlagged) {
+          if (isFlagMode) {
+            toggleFlag(row, col);
+          } else {
+            revealCell(row, col);
+          }
         }
       }
     }
-    
+
+    // Reset timer state and record last touch time
     setTouchTimer({ timerId: null, touchStartTime: 0 });
-  }, [touchTimer, isFlagMode, toggleFlag, revealCell]);
+    lastTouchTimeRef.current = Date.now();
+
+  }, [board, touchTimer, isFlagMode, toggleFlag, revealCell]);
 
   // Handle touch move (cancel if moved)
   const handleTouchMove = useCallback(() => {
     if (touchTimer.timerId) {
       clearTimeout(touchTimer.timerId);
       setTouchTimer({ timerId: null, touchStartTime: 0 });
+      longPressHandledRef.current = false; // Reset ref
     }
   }, [touchTimer]);
 
@@ -445,13 +467,19 @@ const Minesweeper = () => {
       <div 
         key={`${row}-${col}`}
         className={className}
-        onClick={() => isFlagMode ? memoizedToggleFlag(row, col) : memoizedRevealCell(row, col)}
+        onClick={(e) => { 
+          // If a touch event occurred recently, ignore the click
+          if (Date.now() - lastTouchTimeRef.current < 500) {
+            return;
+          }
+          isFlagMode ? toggleFlag(row, col) : revealCell(row, col);
+        }}
         onContextMenu={(e) => {
           e.preventDefault();
           if (cell.isRevealed && cell.neighborMines > 0) {
             chordReveal(row, col);
           } else {
-            memoizedToggleFlag(row, col);
+            toggleFlag(row, col);
           }
         }}
         onTouchStart={() => handleTouchStart(row, col)}
