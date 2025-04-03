@@ -1,95 +1,153 @@
-Here's a detailed specification for your Minesweeper game:
+# Modern Minesweeper
 
-# Minesweeper Game Specification
+A sleek, modern implementation of the classic Minesweeper game built with Next.js, TypeScript, and Tailwind CSS. Features a responsive design, touch support, and dark mode.
 
-## Overview
-A modern, web-based implementation of the classic Minesweeper game with vibrant visuals and standard gameplay mechanics. The game supports both desktop and mobile devices with intuitive touch controls.
+![Minesweeper Game Screenshot]
+[Add a screenshot of your game here]
 
-## Visual Design
-- **Color Scheme**: Vibrant colors with purple cells, gradient backgrounds, and colorful numbered indicators
-- **Interface**: Clean, centered layout with responsive design
-- **Typography**: Bold, easy-to-read text with a gradient title effect
-- **Animations**: Subtle hover and click animations for better user feedback
-- **Theme Support**: Light and dark mode with system preference detection
-- **Visual Feedback**: Page-wide flash effect when flagging cells
+## 🎮 Play Now
 
-## Game Components
-1. **Header**
-   - Game title with gradient effect
-   - Difficulty selection buttons (Easy, Medium, Hard)
-   - New Game button
-   - Status display (game state indicator)
+[Add your deployed game URL here]
 
-2. **Game Info Panel**
-   - Mine counter (remaining mines)
-   - Timer display (minutes:seconds format)
+## ✨ Features
 
-3. **Game Board**
-   - Grid of cells based on difficulty setting
-   - Visual indicators for revealed, flagged, and mine cells
-   - Responsive sizing for different screen sizes
+- 🎯 Three difficulty levels: Easy (10x10), Medium (16x16), and Hard (16x30)
+- 🌓 Light/Dark theme with system preference detection
+- 📱 Full touch support for mobile devices
+- 🎨 Modern, responsive UI with smooth animations
+- ⌨️ Desktop and mobile-optimized controls
+- 🎆 Visual feedback for all actions
+- ♿ Accessibility features
 
-4. **Controls**
-   - Flag mode toggle button
-   - Theme toggle in bottom-left corner
-   - Instructions panel
+## 🚀 Getting Started
 
-5. **Instructions**
-   - Mobile controls: Tap to reveal, hold to flag
-   - Desktop controls: Click to reveal, right-click to flag
-   - Game mechanics explanation
+### Prerequisites
 
-## Game Mechanics
+- Node.js 18.0 or higher
+- npm or yarn
 
-### Difficulty Levels
-- **Easy**: 10×10 grid with 15 mines
-- **Medium**: 16×16 grid with 40 mines
-- **Hard**: 16×30 grid with 99 mines
+### Installation
 
-### Gameplay Rules
-1. **Initialization**
-   - Game board is created with randomly placed mines
-   - Timer starts only after the first player action (click or flag)
-   - Game state begins in "waiting" mode
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/minesweeper.git
+   cd minesweeper
+   ```
 
-2. **Cell Interaction**
-   - Desktop:
-     - Left-click: Reveal a cell
-     - Right-click: Toggle a flag on/off on unrevealed cells
-   - Mobile:
-     - Tap: Reveal a cell
-     - Long-press: Toggle a flag on/off on unrevealed cells
-   - Flag Mode:
-     - Toggle button to switch between reveal and flag modes
-     - Click/tap to perform the selected action
+2. Install dependencies
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-3. **Cell States**
-   - Unrevealed: Default purple background
-   - Revealed: Shows either a number (1-8) or blank
-   - Flagged: Shows a flag icon (🚩)
-   - Mine: Shows a bomb icon (💣) when revealed
+3. Start the development server
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-4. **Game Progression**
-   - Numbers indicate the count of adjacent mines
-   - Empty cells auto-reveal adjacent empty cells
-   - Flagging all mines correctly ends the game with a win
-   - Visual feedback when flagging cells
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-5. **Win/Loss Conditions**
-   - Win: All mines are correctly flagged
-   - Loss: Player reveals a mine
+## 🎯 How to Play
 
-6. **Timer Behavior**
-   - Starts on first player action
-   - Increments in 1-second intervals
-   - Stops when game ends (win or loss)
+### Desktop Controls
+- Left Click: Reveal a cell
+- Right Click: Flag/unflag a cell
+- Right Click on Numbers: Reveal adjacent cells when correct number of flags are placed
 
-## Accessibility Features
-- Clear visual indicators for important game states
-- Color combinations with sufficient contrast
-- Emoji icons for flags and mines
-- Touch-friendly controls for mobile devices
-- Visual feedback for all actions
-- Theme support for light/dark mode preferences
+### Mobile Controls
+- Tap: Reveal a cell
+- Long Press: Flag/unflag a cell
+- Long Press on Numbers: Reveal adjacent cells when correct number of flags are placed
 
-This specification provides a comprehensive overview of your Minesweeper game, documenting its visual design, gameplay mechanics, and technical implementation details.
+## 🛠️ Built With
+
+- [Next.js](https://nextjs.org/) - React framework
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [React](https://reactjs.org/) - UI Components
+
+## 🎨 Color Scheme
+
+The game features a carefully chosen color palette:
+- Unrevealed cells: Purple (#9333ea)
+- Flagged cells: Green (#22c55e)
+- Mine cells: Pink (#ec4899)
+- Numbers: Color-coded 1-8 for easy recognition
+- Gradients for UI elements and instructions
+
+## 🌓 Theme Support
+
+- Automatically detects system color scheme preference
+- Manually toggleable between light and dark modes
+- Persists theme choice in local storage
+- Optimized contrast ratios for both themes
+
+## 📱 Mobile Optimization
+
+- Responsive grid sizing
+- Touch-optimized controls
+- Prevent unwanted gestures (pull-to-refresh, double-tap zoom)
+- Compact UI for smaller screens
+- Visual feedback for touch actions
+
+## 🔧 Development
+
+```bash
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linter
+npm run lint
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+The MIT License is a permissive license that is short and to the point. It lets people do anything they want with your code as long as they provide attribution back to you and don't hold you liable.
+
+```text
+MIT License
+
+Copyright (c) 2025 Saadiq Rodgers-King
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 👏 Acknowledgments
+
+- Inspired by the classic Minesweeper game
+- Icons from [Feather Icons](https://feathericons.com/)
+
+## 📸 Screenshots
+
+[Add more screenshots of your game here, showing different states and features]
+
+---
+
+Made with ❤️ by Saadiq Rodgers-King
