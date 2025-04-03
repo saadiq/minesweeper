@@ -60,7 +60,7 @@ const Minesweeper = () => {
   };
 
   // Initialize the board
-  const initializeBoard = () => {
+  const initializeBoard = useCallback(() => {
     // Reset game state
     setGameState('waiting');
     setFlagCount(0);
@@ -120,10 +120,10 @@ const Minesweeper = () => {
     }
     
     setBoard(newBoard);
-  };
+  }, [boardSize.rows, boardSize.cols, mineCount, intervalId]);
   
   // Reveal a cell
-  const revealCell = (row: number, col: number) => {
+  const revealCell = useCallback((row: number, col: number) => {
     const newBoard = [...board];
     const cell = newBoard[row][col];
     
@@ -189,10 +189,10 @@ const Minesweeper = () => {
     }
     
     setBoard([...newBoard]);
-  };
+  }, [board, gameState, boardSize.rows, boardSize.cols, intervalId]);
   
   // Toggle flag on a cell
-  const toggleFlag = (row: number, col: number) => {
+  const toggleFlag = useCallback((row: number, col: number) => {
     if (gameState !== 'playing' && gameState !== 'waiting') return;
     
     // Start the game if it's the first action
@@ -258,7 +258,7 @@ const Minesweeper = () => {
       
       setBoard(newBoard);
     }
-  };
+  }, [board, gameState, flagCount, mineCount, intervalId, boardSize.rows, boardSize.cols]);
   
   // Reveal adjacent cells when right-clicking a revealed number
   const chordReveal = useCallback((row: number, col: number) => {
@@ -309,7 +309,7 @@ const Minesweeper = () => {
     for (const neighbor of neighborsToProcess) {
       revealCell(neighbor.row, neighbor.col);
     }
-  }, [board, gameState, boardSize.rows, boardSize.cols, revealCell]);
+  }, [board, gameState, boardSize.rows, boardSize.cols, revealCell, intervalId]);
   
   // Handle difficulty change
   const changeDifficulty = (level: 'easy' | 'medium' | 'hard') => {
@@ -343,7 +343,7 @@ const Minesweeper = () => {
     if (gameState === 'waiting') {
       initializeBoard();
     }
-  }, [boardSize, mineCount]);
+  }, [boardSize, mineCount, gameState, initializeBoard]);
   
   // Cleanup timer on unmount
   useEffect(() => {
@@ -426,7 +426,7 @@ const Minesweeper = () => {
       <div 
         key={`${row}-${col}`}
         className={className}
-        onClick={(e) => { 
+        onClick={() => { 
           // If a touch event occurred recently, ignore the click
           if (Date.now() - lastTouchTimeRef.current < 500) {
             return;
